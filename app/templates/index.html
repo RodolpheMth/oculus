@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Oculus Monitoring</title>
+        <meta charset="utf-8" />
+        <script src="https://d3js.org/d3.v4.js"></script>
+        <script src="https://cdn.jsdelivr.net/gh/holtzy/D3-graph-gallery@master/LIB/d3.layout.cloud.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart/js@2.9.4/dist/Chart.min.js"></script>
+        <style type="text/css">
+            body{
+                margin: 10px;
+                display: grid;
+                background-color: #E4E2F6;
+            }
+
+            .row{
+                margin-top: 60px;
+                position: relative;
+                width: 100%;
+                height: 100%;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .row:after{
+                content: "";
+                display: table;
+                clear: both;
+            }
+
+            @media screen and (max-width: 600px) {
+            .column {
+                width: 100%;
+                display: block;
+                margin-bottom: 20px;
+            }
+            }
+
+            .column{
+                position: absolute
+
+            }
+            #column--1{
+                box-sizing: content-box;
+                width: 480px;
+                top: 100px;
+                left: 120px;
+            }
+
+            #column--2{
+                width: 480px;
+                top: 100px;
+                right: 120px;
+            }
+
+
+            .block{
+                box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+                text-align: center;
+                background-color: #f1f1f1;
+            }
+
+            header{
+                position: absolute;
+                box-shadow: 0px 9px 8px grey;
+                background-color: white;
+            }
+
+            #logo{
+                float: left;
+                top:0;
+                25px 850px 35px 20px
+                opacity: 100;
+                width: 50px;
+                height: 50px;
+                margin-left: 15px;
+                margin-top: 15px;
+                margin-bottom: 15px;
+            }
+
+            h1{
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+                font-size: 40px;
+                line-height: 0px;
+                letter-spacing: -2px
+                top: 0px;
+                margin: 40px 835px 35px 20px;;
+                margin-left: 75px;
+            }
+
+            h2{
+                margin: 0px;
+            }
+
+            input[type=text]{
+                float: right;
+                padding: 6px;
+                border: none;
+                margin-top: -60px;
+                margin-bottom: 15px;
+                margin-right: 16px;
+                font-size: 25px;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+                text-align: right;
+            }
+        </style>
+
+    </head>
+    <body>
+        <header>
+            <img src="/static/eye_logo.png" alt="eye_oculus" id="logo" />
+            <h1 style="font-family: ">Oculus Monitoring</h1>
+            <input type="text" placeholder="Search.." id="search" />
+        </header>
+        <div class="row">
+            <div class="column" id="column--1">
+                <div class="block">
+                    <div id="my_dataviz"></div>
+                    <script>
+                        // set the dimensions and margins of the graph
+                        var width = 300;
+                        height = 300;
+                        margin = 20;
+
+                        // The radius of the pieplot is half the width or half the height (smallest one). I subtract a bit of margin.
+                        var radius = Math.min(width, height) / 2 - margin;
+
+                        // append the svg object to the div called 'my_dataviz'
+                        var svg = d3
+                            .select("#my_dataviz")
+                            .append("svg")
+                            .attr("width", width)
+                            .attr("height", height)
+                            .append("g")
+                            .attr(
+                                "transform",
+                                "translate(" +
+                                    width / 2 +
+                                    "," +
+                                    height / 2 +
+                                    ")"
+                            );
+
+                        // Create dummy data
+                        var data = { a: 9, b: 20, c: 30, d: 8, e: 12 };
+
+                        // set the color scale
+                        var color = d3
+                            .scaleOrdinal()
+                            .domain(data)
+                            .range([
+                                "#98abc5",
+                                "#8a89a6",
+                                "#7b6888",
+                                "#6b486b",
+                                "#a05d56",
+                            ]);
+
+                        // Compute the position of each group on the pie:
+                        var pie = d3.pie().value(function (d) {
+                            return d.value;
+                        });
+                        var data_ready = pie(d3.entries(data));
+
+                        // Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
+                        svg.selectAll("whatever")
+                            .data(data_ready)
+                            .enter()
+                            .append("path")
+                            .attr(
+                                "d",
+                                d3.arc().innerRadius(0).outerRadius(radius)
+                            )
+                            .attr("fill", function (d) {
+                                return color(d.data.key);
+                            })
+                            .attr("stroke", "black")
+                            .style("stroke-width", "2px")
+                            .style("opacity", 0.7);
+                    </script>
+                    <h2>Circular diagram</h2>
+                </div>
+            </div>
+            <div class="column" id="column--2">
+                <div class="block">
+                    <div id="histogram"></div>
+                    <script>
+                        var margin = {
+                                    top: 30,
+                                    right: 30,
+                                    bottom: 30,
+                                    left: 40,
+                                },
+                                width = 360 - margin.left - margin.right,
+                                height = 300 - margin.top - margin.bottom;
+
+                            // append the svg object to the body of the page
+                            var svg = d3
+                                .select("#histogram")
+                                .append("svg")
+                                .attr(
+                                    "width",
+                                    width + margin.left + margin.right
+                                )
+                                .attr(
+                                    "height",
+                                    height + margin.top + margin.bottom
+                                )
+                                .append("g")
+                                .attr(
+                                    "transform",
+                                    "translate(" +
+                                        margin.left +
+                                        "," +
+                                        margin.top +
+                                        ")"
+                                );
+
+                            // get the data
+                            d3.csv(url, function (data) {
+                                // X axis: scale and draw:
+                                var x = d3
+                                    .scaleLinear()
+                                    .domain([0, 100000]) // can use this instead of 1000 to have the max of data: d3.max(data, function(d) { return +d.price })
+                                    .range([0, width]);
+                                svg.append("g")
+                                    .attr(
+                                        "transform",
+                                        "translate(0," + height + ")"
+                                    )
+                                    .call(d3.axisBottom(x));
+
+                                // set the parameters for the histogram
+                                var histogram = d3
+                                    .histogram()
+                                    .value(function (d) {
+                                        return d['Funds'];
+                                    }) // I need to give the vector of value
+                                    .domain(x.domain()) // then the domain of the graphic
+                                    .thresholds(x.ticks(70)); // then the numbers of bins
+
+                                // And apply this function to data to get the bins
+                                var bins = histogram(data);
+
+                                // Y axis: scale and draw:
+                                var y = d3.scaleLinear().range([height, 0]);
+                                y.domain([
+                                    0,
+                                    d3.max(bins, function (d) {
+                                        return d.length;
+                                    }),
+                                ]); // d3.hist has to be called before the Y axis obviously
+                                svg.append("g").call(d3.axisLeft(y));
+
+                                // append the bar rectangles to the svg element
+                                svg.selectAll("rect")
+                                    .data(bins)
+                                    .enter()
+                                    .append("rect")
+                                    .attr("x", 1)
+                                    .attr("transform", function (d) {
+                                        return (
+                                            "translate(" +
+                                            x(d.x0) +
+                                            "," +
+                                            y(d.length) +
+                                            ")"
+                                        );
+                                    })
+                                    .attr("width", function (d) {
+                                        return x(d.x1) - x(d.x0) - 1;
+                                    })
+                                    .attr("height", function (d) {
+                                        return height - y(d.length);
+                                    })
+                                    .style("fill", "#69b3a2");
+                            });
+                        }
+                        
+                    </script>
+                    <script>
+                        document
+                            .querySelector("#search")
+                            .addEventListener("submit", (e) => {
+                                console.log(e)
+                                var compagny = e.target.value;
+                                var url ='http://localhost:5000/query/'+compagny
+                                console.log(compagny, url);
+                                histogram(url)
+                            });
+                    </script>
+                    <h2>Histogram</h2>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

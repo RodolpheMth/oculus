@@ -1,0 +1,17 @@
+# this directory allow pipenv to initialise the virtualenv inside
+# the project directory by default
+#
+# @see https://stackoverflow.com/a/57922911
+/.venv/**
+!/.venv/.gitkeep
+
+/.cache
+/*.egg-info
+/.idea
+/.vscode
+dist
+.coverage
+**.pyc
+MANIFEST
+/venv
+/tweepy
